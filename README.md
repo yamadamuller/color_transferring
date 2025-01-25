@@ -14,4 +14,5 @@ hey alright
 
 ![aris](https://github.com/user-attachments/assets/5c99505a-4990-4cb7-a438-220ba78b4bfd)
 
- 
+ ![aris_color2](https://github.com/user-attachments/assets/55f41cab-8e8f-4d83-8152-fa6bd7f134d6)
+
