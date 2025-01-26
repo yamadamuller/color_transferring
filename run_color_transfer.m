@@ -11,8 +11,10 @@ img_target = imread(string(path_target)+'aris2.png'); %imagem target grayscale
 img_target = rgb2gray(img_target); %grayscale
 img_target = im2double(img_target); %autcontraste
 
-%Roda o algoritmo de color transferring
-color_target = framework.color_transferring(img_ref, ref_gs, img_target);
+%Roda o algoritmo de color matching
+tic
+color_target = framework.color_matching(img_ref, ref_gs, img_target, 'jitter');
+toc
 
 %plots
 figure(1)
@@ -25,3 +27,8 @@ title('Target')
 subplot(1,3,3)
 imshow(color_target)
 title('Color matching')
+
+figure(2)
+imshow(color_target)
+
+
