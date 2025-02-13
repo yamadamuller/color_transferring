@@ -194,5 +194,87 @@ classdef framework
             pxl_match = jitter_grid(idx_match,3:4); %registra os pixels da imagem original
         end
         
+        function S = NR_IQA_Shi2024(img)
+            %%--- Argumentos da função----------------------------------------
+            %img: a matriz da imagem RGB que se deseja aplicar a mpetrica
+            %mask: a máscara de convolução (matriz quadrada)
+            %varargin: variável opcional que define o tratamento das bordas
+            %retorna: a matriz de convolução entre a imagem e a máscara
+            %-----------------------------------------------------------------
+
+            %Roda IQA - Shi, C. 2024
+            C = rgb2ntsc(img); %converte RGB para YIQ
+            
+            %Local Color Difference Operators
+            %Desloca o pixels em j+1
+            C_disp_j = C(:,:,:); %copia a matriz da imagem
+            C_disp_j(1:size(C_disp_j,1), 1:size(C_disp_j,2)-1,:) = C_disp_j(1:size(C_disp_j,1), 2:size(C_disp_j,2),:); 
+            C_disp_j(1:size(C_disp_j,1), size(C_disp_j,2),:) = 0; 
+            
+            %Desloca o pixels em i+1
+            C_disp_i = C(:,:,:); %copia a matriz da imagem
+            C_disp_i(1:size(C_disp_j,1)-1, 1:size(C_disp_j,2),:) = C_disp_i(2:size(C_disp_j,1), 1:size(C_disp_j,2),:); 
+            C_disp_i(size(C_disp_j,1), size(C_disp_j,2),:) = 0;
+            
+            %Local color difference
+            %horizontal
+            dEh = sum(((C-C_disp_j).^2),3); %soma da diferença quadrática
+            dEh = sqrt(dEh); %raíz da soma da diferença quadrática
+            
+            %vertical
+            dEv = sum(((C-C_disp_i).^2),3); %soma da diferença quadrática
+            dEv = sqrt(dEv); %raíz da soma da diferença quadrática
+            
+            dEl = (dEh+dEv)/2; %diferença local de cor
+            
+            %Absolute Color Difference Variation
+            CDVa = max(dEl(:)) - min(dEl(:));
+            
+            %Relative Color Difference Variation
+            CDVr = (max(dEl(:)) - min(dEl(:)))/mean(dEl(:)); 
+            
+            %Shi2024 NR-IQA metric
+            S = CDVa*CDVr;
+        end
+        
+        function AIE = avg_entropy(img)
+            %%--- Argumentos da função----------------------------------------
+            %img: a matriz da imagem que se deseja calcular a métrica
+            %retorna: média da quantidade de informação (average information entropy)
+            %-----------------------------------------------------------------
+            num_chan = size(img,3); %quantidade de canais na imagem
+            AIE = 0; %Average information entropy
+            for n = 1:num_chan
+                curr_img = img(:,:,n); %canal atual
+                im_hist = framework.im_histogram(curr_img); %histograma
+                total_pxl = numel(curr_img); %número total de pixels por canal
+                im_prob = im_hist/total_pxl; %probabilidades
+                log_prob = log2(im_prob); %aplica log nas probabilidades
+                log_prob(log_prob==-Inf) = 0; %compensa log infinito
+                IE = im_prob.*log_prob; %quantidade de informação
+                AIE = AIE + (-sum(IE))^2; %soma acumulativa quadrática
+            end
+            
+            AIE = sqrt((1/3)*AIE);
+        end
+
+        function hist_hash = im_histogram(img)
+            %%--- Argumentos da função----------------------------------------
+            %img: a matriz da imagem que se deseja calcular o histograma
+            %retorna: contagem para cada pixel da imagem por iteração
+            %-----------------------------------------------------------------
+            img = im2uint8(img); %converte a imagem para uint8 para termos valores de 0 a 255
+            img = img(:); %empilha a matriz em um vetor de tamanho  i*j
+            hist_hash = zeros(size(0:1:255)); %hash que registra para cada pixel (índice) a contagem
+            
+            %adiciona 1 na hash que registra a contagem a cada vez que
+            %registrar a ocorrência do respectivo pixel
+            for i = 1:length(img)
+                hist_hash(double(img(i))+1) = hist_hash(double(img(i))+1) + 1; %matlab é one-based e pixel pode ter valor 0
+            end
+
+            hist_hash = hist_hash'; %aplica transposta para output ter as msm dimensões de imhist()
+        end
+
     end
 end
