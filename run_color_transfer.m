@@ -37,4 +37,7 @@ title('Color matching')
 figure(2)
 imshow(color_target)
 
+figure(3)
+imshow(img_target)
+
 

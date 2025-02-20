@@ -140,6 +140,7 @@ classdef framework
             %Tranferência de cor baseada em jitter grid
             jitter_grid = framework.generate_jitter_grid(ref_gs, sigma_filt_ref_gs, n_samples); %gera a jitter grid com n_samples
             [tar_i, tar_j] = size(target_img); %linhas e colunas da imagem target
+
             for i = 1:tar_i
                for j = 1:tar_j
                   curr_idx = (i-1)+(j-1)*tar_i+1;
