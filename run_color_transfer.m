@@ -34,10 +34,10 @@ subplot(1,3,3)
 imshow(color_target)
 title('Color matching')
 
-figure(2)
-imshow(color_target)
+%figure(2)
+%imshow(color_target)
 
-figure(3)
-imshow(img_target)
+%figure(3)
+%imshow(img_target)
 
 
